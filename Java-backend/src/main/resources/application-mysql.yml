@@ -1,0 +1,54 @@
+# MySQL配置文件
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: iot-platform
+
+  # MySQL数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/iot_platform?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8mb4&allowPublicKeyRetrieval=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 12344321
+
+  # JPA配置
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update  # 自动根据实体类创建/更新表结构
+    show-sql: false
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  # 数据初始化（首次启动时执行）
+  sql:
+    init:
+      mode: always  # 每次启动都检查，但INSERT会因主键冲突而跳过
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: true  # 忽略重复插入错误
+
+# JWT配置
+jwt:
+  secret: IoTPlatformSecretKey2024VeryLongSecretKeyForHS256Algorithm
+  expiration: 86400000  # 24小时
+
+# MQTT Broker配置
+mqtt:
+  broker:
+    host: 0.0.0.0
+    port: 1883
+    websocket-port: 8083
+    websocket-path: /mqtt
+
+# 日志配置
+logging:
+  level:
+    com.iot.platform: INFO
+    io.moquette: INFO

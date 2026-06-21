@@ -1,0 +1,66 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: iot-platform
+
+  # 数据源配置 - 默认使用H2内存数据库（开发测试用）
+  datasource:
+    url: jdbc:h2:mem:iotdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA配置
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: false
+
+  # 数据初始化（首次启动时执行）
+  sql:
+    init:
+      mode: embedded
+      schema-locations: classpath:schema-h2.sql
+      data-locations: classpath:data-h2.sql
+
+  # H2控制台（开发用）
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Jackson配置
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+
+# JWT配置
+jwt:
+  secret: IoTPlatformSecretKey2024VeryLongSecretKeyForHS256Algorithm
+  expiration: 86400000  # 24小时
+
+# MQTT Broker配置
+mqtt:
+  broker:
+    host: 0.0.0.0
+    port: 1883
+    websocket-port: 8083
+    websocket-path: /mqtt
+
+# 日志配置
+logging:
+  level:
+    com.iot.platform: DEBUG
+    io.moquette: INFO
