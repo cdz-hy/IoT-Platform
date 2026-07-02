@@ -4,21 +4,16 @@ import com.iot.platform.entity.Product;
 import com.iot.platform.entity.ThingProperty;
 import com.iot.platform.entity.ThingService;
 import com.iot.platform.entity.ThingEvent;
-import com.iot.platform.repository.ProductRepository;
-import com.iot.platform.repository.ThingPropertyRepository;
-import com.iot.platform.repository.ThingServiceRepository;
-import com.iot.platform.repository.ThingEventRepository;
+import com.iot.platform.repository.*;
 import com.iot.platform.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * 产品服务实现类
- */
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -27,12 +22,14 @@ public class ProductServiceImpl implements ProductService {
     private final ThingPropertyRepository propertyRepository;
     private final ThingServiceRepository serviceRepository;
     private final ThingEventRepository eventRepository;
+    private final DeviceRepository deviceRepository;
 
     @Override
     @Transactional
     public Product createProduct(Product product) {
-        // 生成产品ID
-        product.setId(generateId("PROD"));
+        product.setId(generateId("P"));
+        product.setCreatedTime(LocalDateTime.now());
+        product.setUpdatedTime(LocalDateTime.now());
         return productRepository.save(product);
     }
 
@@ -43,6 +40,8 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new RuntimeException("产品不存在: " + id));
         existing.setName(product.getName());
         existing.setType(product.getType());
+        existing.setDescription(product.getDescription());
+        existing.setUpdatedTime(LocalDateTime.now());
         return productRepository.save(existing);
     }
 
@@ -51,6 +50,11 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(String id) {
         if (!productRepository.existsById(id)) {
             throw new RuntimeException("产品不存在: " + id);
+        }
+        // 删除保护：有设备时禁止删除
+        long deviceCount = deviceRepository.countByProductId(id);
+        if (deviceCount > 0) {
+            throw new RuntimeException("该产品下还有 " + deviceCount + " 个设备，请先删除设备");
         }
         productRepository.deleteById(id);
     }
@@ -72,6 +76,8 @@ public class ProductServiceImpl implements ProductService {
         Product product = getProductById(productId);
         property.setId(generateId("PROP"));
         property.setProduct(product);
+        property.setCreatedTime(LocalDateTime.now());
+        property.setUpdatedTime(LocalDateTime.now());
         return propertyRepository.save(property);
     }
 
@@ -80,12 +86,14 @@ public class ProductServiceImpl implements ProductService {
     public ThingProperty updateProperty(String propertyId, ThingProperty property) {
         ThingProperty existing = propertyRepository.findById(propertyId)
                 .orElseThrow(() -> new RuntimeException("属性不存在: " + propertyId));
-        existing.setPropertyName(property.getPropertyName());
+        existing.setName(property.getName());
+        existing.setIdentifier(property.getIdentifier());
         existing.setDataType(property.getDataType());
         existing.setMinValue(property.getMinValue());
         existing.setMaxValue(property.getMaxValue());
         existing.setUnit(property.getUnit());
         existing.setAccessMode(property.getAccessMode());
+        existing.setUpdatedTime(LocalDateTime.now());
         return propertyRepository.save(existing);
     }
 
@@ -104,8 +112,10 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public ThingService addService(String productId, ThingService service) {
         Product product = getProductById(productId);
-        service.setId(generateId("SERV"));
+        service.setId(generateId("SVC"));
         service.setProduct(product);
+        service.setCreatedTime(LocalDateTime.now());
+        service.setUpdatedTime(LocalDateTime.now());
         return serviceRepository.save(service);
     }
 
@@ -114,9 +124,12 @@ public class ProductServiceImpl implements ProductService {
     public ThingService updateService(String serviceId, ThingService service) {
         ThingService existing = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new RuntimeException("服务不存在: " + serviceId));
-        existing.setServiceName(service.getServiceName());
+        existing.setName(service.getName());
+        existing.setIdentifier(service.getIdentifier());
         existing.setInputParams(service.getInputParams());
         existing.setOutputParams(service.getOutputParams());
+        existing.setDescription(service.getDescription());
+        existing.setUpdatedTime(LocalDateTime.now());
         return serviceRepository.save(existing);
     }
 
@@ -137,6 +150,8 @@ public class ProductServiceImpl implements ProductService {
         Product product = getProductById(productId);
         event.setId(generateId("EVT"));
         event.setProduct(product);
+        event.setCreatedTime(LocalDateTime.now());
+        event.setUpdatedTime(LocalDateTime.now());
         return eventRepository.save(event);
     }
 
@@ -145,9 +160,11 @@ public class ProductServiceImpl implements ProductService {
     public ThingEvent updateEvent(String eventId, ThingEvent event) {
         ThingEvent existing = eventRepository.findById(eventId)
                 .orElseThrow(() -> new RuntimeException("事件不存在: " + eventId));
-        existing.setEventName(event.getEventName());
+        existing.setName(event.getName());
+        existing.setIdentifier(event.getIdentifier());
         existing.setEventType(event.getEventType());
         existing.setDescription(event.getDescription());
+        existing.setUpdatedTime(LocalDateTime.now());
         return eventRepository.save(existing);
     }
 
@@ -172,9 +189,6 @@ public class ProductServiceImpl implements ProductService {
                 ));
     }
 
-    /**
-     * 生成唯一ID
-     */
     private String generateId(String prefix) {
         return prefix + "_" + UUID.randomUUID().toString().substring(0, 8);
     }

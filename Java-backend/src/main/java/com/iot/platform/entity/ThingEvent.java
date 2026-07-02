@@ -6,37 +6,50 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
-/**
- * 物模型事件 - 定义设备主动上报的异常或通知事件
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "thing_event")
+@Table(name = "thing_event", uniqueConstraints = @UniqueConstraint(columnNames = {"product_id", "identifier"}))
 public class ThingEvent {
 
-    /** 事件ID */
     @Id
     @Column(name = "id", length = 64)
     private String id;
 
-    /** 事件名称 */
-    @Column(name = "event_name", length = 50)
-    private String eventName;
+    @Column(name = "name", length = 50, nullable = false)
+    private String name;
 
-    /** 事件类型 */
-    @Column(name = "event_type", length = 30)
+    @Column(name = "identifier", length = 50, nullable = false)
+    private String identifier;
+
+    @Column(name = "event_type", length = 30, nullable = false)
     private String eventType;
 
-    /** 事件描述 */
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(name = "description", length = 255)
     private String description;
 
-    /** 所属产品 */
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
+
+    @Column(name = "updated_time")
+    private LocalDateTime updatedTime;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     @JsonIgnore
     private Product product;
+
+    @PrePersist
+    protected void onCreate() {
+        createdTime = LocalDateTime.now();
+        updatedTime = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
+    }
 }

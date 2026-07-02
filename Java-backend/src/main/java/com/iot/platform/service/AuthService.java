@@ -10,6 +10,9 @@ public interface AuthService {
     /** 管理员登录 */
     Map<String, String> login(String username, String password);
 
+    /** 用户注册 */
+    void register(String username, String password, String nickname);
+
     /** 验证JWT token */
     boolean validateToken(String token);
 

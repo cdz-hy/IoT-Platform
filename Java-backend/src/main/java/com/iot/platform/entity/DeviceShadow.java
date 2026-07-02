@@ -28,7 +28,8 @@ public class DeviceShadow {
     @Column(name = "shadow_data", columnDefinition = "JSON")
     private String shadowData;
 
-    /** 版本号（用于并发控制） */
+    /** 版本号（JPA乐观锁，并发控制） */
+    @Version
     @Column(name = "version")
     private Long version = 1L;
 

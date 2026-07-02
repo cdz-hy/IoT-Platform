@@ -72,7 +72,7 @@
               <el-icon :size="16"><Odometer /></el-icon>
             </div>
             <div class="item-content">
-              <div class="item-name">{{ prop.propertyName }}</div>
+              <div class="item-name">{{ prop.name || prop.propertyName }} <span class="item-identifier">{{ prop.identifier }}</span></div>
               <div class="item-meta">
                 <span class="meta-tag">{{ prop.dataType }}</span>
                 <span v-if="prop.unit" class="meta-tag">{{ prop.unit }}</span>
@@ -159,7 +159,10 @@
     <el-dialog v-model="propertyDialogVisible" title="添加属性" width="460px">
       <el-form :model="propertyForm" label-position="top">
         <el-form-item label="属性名称">
-          <input v-model="propertyForm.propertyName" placeholder="如 temperature" class="fd-input" />
+          <input v-model="propertyForm.name" placeholder="如 温度" class="fd-input" />
+        </el-form-item>
+        <el-form-item label="属性标识符">
+          <input v-model="propertyForm.identifier" placeholder="如 temperature (英文,产品内唯一)" class="fd-input" />
         </el-form-item>
         <div class="form-row">
           <el-form-item label="数据类型" class="flex-1">
@@ -275,7 +278,7 @@ const serviceDialogVisible = ref(false)
 const eventDialogVisible = ref(false)
 
 const propertyForm = reactive({
-  propertyName: '', dataType: 'double', minValue: '', maxValue: '', unit: '', accessMode: 'read'
+  name: '', identifier: '', dataType: 'double', minValue: '', maxValue: '', unit: '', accessMode: 'read'
 })
 const serviceForm = reactive({ serviceName: '', inputParams: '[]', outputParams: '[]' })
 const eventForm = reactive({ eventName: '', eventType: 'alert', description: '' })
@@ -317,7 +320,8 @@ const loadEvents = async () => {
 }
 
 const showAddProperty = () => {
-  propertyForm.propertyName = ''
+  propertyForm.name = ''
+  propertyForm.identifier = ''
   propertyForm.dataType = 'double'
   propertyForm.minValue = ''
   propertyForm.maxValue = ''
@@ -327,6 +331,16 @@ const showAddProperty = () => {
 }
 
 const handleAddProperty = async () => {
+  if (!propertyForm.name || !propertyForm.identifier) {
+    ElMessage.warning('请填写属性名称和标识符')
+    return
+  }
+  // 检查identifier唯一性
+  const duplicate = properties.value.find(p => p.identifier === propertyForm.identifier)
+  if (duplicate) {
+    ElMessage.warning('属性标识符已存在，请使用不同的标识符')
+    return
+  }
   try {
     await addProperty(productId, propertyForm)
     ElMessage.success('添加成功')
@@ -597,6 +611,16 @@ onMounted(() => {
   font-weight: 500;
   color: var(--fd-text);
   margin-bottom: 4px;
+}
+.item-identifier {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--fd-primary);
+  background: var(--fd-primary-alpha);
+  padding: 1px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
 }
 
 .item-meta {

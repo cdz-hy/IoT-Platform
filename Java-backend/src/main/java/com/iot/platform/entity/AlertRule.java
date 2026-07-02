@@ -1,15 +1,12 @@
 package com.iot.platform.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
-/**
- * 告警规则 - 为设备属性值配置告警条件
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,28 +14,42 @@ import javax.persistence.*;
 @Table(name = "alert_rule")
 public class AlertRule {
 
-    /** 规则ID */
     @Id
     @Column(name = "id", length = 64)
     private String id;
 
-    /** 产品ID */
-    @Column(name = "product_id", length = 64)
+    @Column(name = "product_id", length = 64, nullable = false)
     private String productId;
 
-    /** 属性名称 */
-    @Column(name = "property_name", length = 50)
-    private String propertyName;
+    @Column(name = "property_identifier", length = 50, nullable = false)
+    private String propertyIdentifier;
 
-    /** 条件表达式（如 "> 35", "< 10"） */
-    @Column(name = "condition_expr", length = 255)
-    private String conditionExpr;
+    @Column(name = "operator", length = 10, nullable = false)
+    private String operator;
 
-    /** 告警内容 */
-    @Column(name = "alert_content", columnDefinition = "TEXT")
+    @Column(name = "threshold", length = 50, nullable = false)
+    private String threshold;
+
+    @Column(name = "alert_content", length = 255, nullable = false)
     private String alertContent;
 
-    /** 是否启用 */
-    @Column(name = "enabled")
+    @Column(name = "enabled", nullable = false)
     private Boolean enabled = true;
+
+    @Column(name = "created_time")
+    private LocalDateTime createdTime;
+
+    @Column(name = "updated_time")
+    private LocalDateTime updatedTime;
+
+    @PrePersist
+    protected void onCreate() {
+        createdTime = LocalDateTime.now();
+        updatedTime = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedTime = LocalDateTime.now();
+    }
 }

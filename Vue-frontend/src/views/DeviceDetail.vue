@@ -40,7 +40,7 @@
         </div>
         <div class="info-item">
           <span class="info-label">所属产品</span>
-          <span class="info-value">{{ device.product?.name || '-' }}</span>
+          <span class="info-value">{{ device.productName || device.belongProductId || '-' }}</span>
         </div>
         <div class="info-item">
           <span class="info-label">最后上线</span>
@@ -155,8 +155,8 @@
     <el-dialog v-model="shadowDialogVisible" title="修改期望值" width="460px">
       <div class="shadow-form">
         <div v-for="prop in properties" :key="prop.id" class="fd-form-group">
-          <label class="fd-form-label">{{ prop.propertyName }} <span class="type-tag">{{ prop.dataType }}</span></label>
-          <input v-model="desiredValues[prop.propertyName]" :placeholder="`请输入${prop.propertyName}`" class="fd-input" />
+          <label class="fd-form-label">{{ prop.name || prop.propertyName }} <span class="type-tag">{{ prop.dataType }}</span></label>
+          <input v-model="desiredValues[prop.identifier || prop.propertyName]" :placeholder="`请输入${prop.name || prop.propertyName}`" class="fd-input" />
         </div>
       </div>
       <template #footer>
@@ -236,19 +236,20 @@ const loadCommandLogs = async () => {
 }
 
 const loadProperties = async () => {
-  if (device.value.product?.id) {
-    try {
-      const res = await getProperties(device.value.product.id)
-      properties.value = res.data
-    } catch (error) {
-      console.error('加载属性列表失败', error)
-    }
+  const productId = device.value.belongProductId
+  if (!productId) return
+  try {
+    const res = await getProperties(productId)
+    properties.value = res.data || res || []
+  } catch (error) {
+    console.error('加载属性列表失败', error)
   }
 }
 
 const showShadowDialog = () => {
   properties.value.forEach(prop => {
-    desiredValues[prop.propertyName] = shadowData.value?.state?.desired?.[prop.propertyName] || ''
+    const key = prop.identifier || prop.propertyName
+    desiredValues[key] = shadowData.value?.state?.desired?.[key] || ''
   })
   shadowDialogVisible.value = true
 }

@@ -43,6 +43,12 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
+        <!-- Spring Security (密码加密) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
         <!-- javax.annotation (Java 17需要显式引入) -->
         <dependency>
             <groupId>javax.annotation</groupId>

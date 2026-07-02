@@ -7,9 +7,6 @@ import lombok.AllArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * 告警记录 - 记录触发的告警事件
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,41 +14,40 @@ import java.time.LocalDateTime;
 @Table(name = "alert_record")
 public class AlertRecord {
 
-    /** 记录ID */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    /** 设备ID */
-    @Column(name = "device_id", length = 64)
+    @Column(name = "device_id", length = 64, nullable = false)
     private String deviceId;
 
-    /** 规则ID */
+    @Column(name = "product_id", length = 64, nullable = false)
+    private String productId;
+
     @Column(name = "rule_id", length = 64)
     private String ruleId;
 
-    /** 告警内容 */
-    @Column(name = "alert_content", columnDefinition = "TEXT")
+    @Column(name = "property_identifier", length = 50, nullable = false)
+    private String propertyIdentifier;
+
+    @Column(name = "actual_value", length = 50, nullable = false)
+    private String actualValue;
+
+    @Column(name = "alert_content", length = 255, nullable = false)
     private String alertContent;
 
-    /** 告警时间 */
-    @Column(name = "alert_time")
-    private LocalDateTime alertTime;
-
-    /** 状态：pending, confirmed */
-    @Column(name = "status", length = 20)
+    @Column(name = "status", length = 20, nullable = false)
     private String status = "pending";
 
-    /** 确认时间 */
+    @Column(name = "alert_time", nullable = false)
+    private LocalDateTime alertTime;
+
     @Column(name = "confirmed_time")
     private LocalDateTime confirmedTime;
 
-    /** 备注 */
     @Column(name = "remark", length = 255)
     private String remark;
 
-    /** 设备名称（冗余字段） */
     @Transient
     private String deviceName;
 

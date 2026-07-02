@@ -9,9 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-/**
- * WebSocket推送服务 - 向前端实时推送数据
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -19,9 +16,6 @@ public class WebSocketService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    /**
-     * 推送设备状态变更
-     */
     public void sendDeviceStatusChange(Device device) {
         Map<String, Object> payload = Map.of(
                 "deviceId", device.getDeviceId(),
@@ -30,12 +24,8 @@ public class WebSocketService {
                 "timestamp", System.currentTimeMillis()
         );
         messagingTemplate.convertAndSend("/topic/device/status", payload);
-        log.debug("推送设备状态变更: deviceId={}, status={}", device.getDeviceId(), device.getStatus());
     }
 
-    /**
-     * 推送设备最新数据
-     */
     public void sendDeviceTelemetry(String deviceId, Map<String, Object> data) {
         Map<String, Object> payload = Map.of(
                 "deviceId", deviceId,
@@ -43,27 +33,22 @@ public class WebSocketService {
                 "timestamp", System.currentTimeMillis()
         );
         messagingTemplate.convertAndSend("/topic/device/telemetry", payload);
-        log.debug("推送设备数据: deviceId={}", deviceId);
     }
 
-    /**
-     * 推送告警通知
-     */
     public void sendAlertNotification(AlertRecord alert) {
         Map<String, Object> payload = Map.of(
                 "alertId", alert.getId(),
                 "deviceId", alert.getDeviceId(),
+                "productId", alert.getProductId(),
+                "propertyIdentifier", alert.getPropertyIdentifier(),
+                "actualValue", alert.getActualValue(),
                 "content", alert.getAlertContent(),
                 "status", alert.getStatus(),
                 "timestamp", System.currentTimeMillis()
         );
         messagingTemplate.convertAndSend("/topic/alert", payload);
-        log.info("推送告警通知: alertId={}", alert.getId());
     }
 
-    /**
-     * 推送命令响应
-     */
     public void sendCommandResponse(String commandId, String status, String result) {
         Map<String, Object> payload = Map.of(
                 "commandId", commandId,
@@ -72,5 +57,14 @@ public class WebSocketService {
                 "timestamp", System.currentTimeMillis()
         );
         messagingTemplate.convertAndSend("/topic/command/response", payload);
+    }
+
+    public void sendShadowUpdate(String deviceId, Map<String, Object> shadowData) {
+        Map<String, Object> payload = Map.of(
+                "deviceId", deviceId,
+                "shadow", shadowData,
+                "timestamp", System.currentTimeMillis()
+        );
+        messagingTemplate.convertAndSend("/topic/shadow", payload);
     }
 }

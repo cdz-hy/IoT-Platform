@@ -54,9 +54,9 @@
         </div>
         <div class="fd-card-body form-scroll-area">
           <div v-for="prop in properties" :key="prop.id" class="fd-form-group">
-            <label class="fd-form-label">{{ prop.propertyName }} <span class="type-tag">{{ prop.dataType }}</span></label>
+            <label class="fd-form-label">{{ prop.name }} <span class="type-tag">{{ prop.dataType }}</span></label>
             <input
-              v-model="telemetryData[prop.propertyName]"
+              v-model="telemetryData[prop.identifier]"
               :placeholder="`类型: ${prop.dataType}`"
               class="fd-input"
               :disabled="!connected"
@@ -115,7 +115,7 @@
 import { ref, reactive, computed, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Connection, Upload, Top, Bottom, Setting } from '@element-plus/icons-vue'
-import { getDevices, getProperties } from '../api'
+import { getDevices, getProperties, getMqttAccessInfo } from '../api'
 import Paho from 'paho-mqtt'
 
 const devices = ref([])
@@ -137,7 +137,7 @@ let mqttClient = null
 const loadDevices = async () => {
   try {
     const res = await getDevices()
-    devices.value = res.data
+    devices.value = res.data || res || []
     
     // 恢复记忆的设备
     const savedDeviceId = localStorage.getItem('simulator_device_id')
@@ -150,11 +150,26 @@ const loadDevices = async () => {
   }
 }
 
+let deviceSecret = ''
+
 const onDeviceChange = async () => {
   const device = devices.value.find(d => d.deviceId === config.deviceId)
   if (device) {
-    config.productId = device.product?.id || ''
     localStorage.setItem('simulator_device_id', config.deviceId)
+    // 获取MQTT接入信息（含密钥和产品ID）
+    try {
+      const res = await getMqttAccessInfo(config.deviceId)
+      const info = res.data || res
+      deviceSecret = info.password || ''
+      // 从topic中提取productId
+      const telemetryTopic = info.topics?.telemetry || ''
+      const parts = telemetryTopic.split('/')
+      if (parts.length >= 3) {
+        config.productId = parts[1]
+      }
+    } catch (e) {
+      deviceSecret = ''
+    }
     await loadProperties(config.productId)
     if (!connected.value) {
       generateRandomData()
@@ -166,7 +181,7 @@ const loadProperties = async (productId) => {
   if (!productId) return
   try {
     const res = await getProperties(productId)
-    properties.value = res.data
+    properties.value = res.data || res || []
   } catch (error) {
     console.error('加载属性失败', error)
   }
@@ -208,7 +223,7 @@ const connect = () => {
     const host = url.hostname
     const port = Number(url.port) || 8083
     const path = url.pathname || '/mqtt'
-    const clientId = config.deviceId + '_' + Math.random().toString(16).substr(2, 8)
+    const clientId = config.deviceId
 
     mqttClient = new Paho.Client(host, port, path, clientId)
 
@@ -254,7 +269,7 @@ const connect = () => {
     addLog('info', 'system', `正在连接到 ${config.broker}...`)
     mqttClient.connect({
       userName: config.deviceId,
-      password: device.secret || '',
+      password: deviceSecret || '',
       cleanSession: true,
       onSuccess: () => {
         connected.value = true
@@ -300,7 +315,7 @@ const sendTelemetry = () => {
   const data = {}
   Object.entries(telemetryData).forEach(([key, value]) => {
     if (value !== '') {
-      const prop = properties.value.find(p => p.propertyName === key)
+      const prop = properties.value.find(p => p.identifier === key)
       if (prop?.dataType === 'int') data[key] = parseInt(value)
       else if (prop?.dataType === 'double') data[key] = parseFloat(value)
       else if (prop?.dataType === 'boolean') data[key] = value === 'true'
@@ -335,16 +350,16 @@ const generateRandomData = () => {
       let min = parseBound(prop.minValue, 0)
       let max = parseBound(prop.maxValue, 100)
       if (min > max) { const temp = min; min = max; max = temp; }
-      telemetryData[prop.propertyName] = Math.floor(Math.random() * (max - min + 1)) + min
+      telemetryData[prop.identifier] = Math.floor(Math.random() * (max - min + 1)) + min
     } else if (prop.dataType === 'double') {
       let min = parseBound(prop.minValue, 0)
       let max = parseBound(prop.maxValue, 100)
       if (min > max) { const temp = min; min = max; max = temp; }
-      telemetryData[prop.propertyName] = (Math.random() * (max - min) + min).toFixed(1)
+      telemetryData[prop.identifier] = (Math.random() * (max - min) + min).toFixed(1)
     } else if (prop.dataType === 'boolean') {
-      telemetryData[prop.propertyName] = Math.random() > 0.5 ? 'true' : 'false'
+      telemetryData[prop.identifier] = Math.random() > 0.5 ? 'true' : 'false'
     } else if (prop.dataType === 'string') {
-      telemetryData[prop.propertyName] = 'data_' + Math.floor(Math.random() * 10000)
+      telemetryData[prop.identifier] = 'data_' + Math.floor(Math.random() * 10000)
     }
   })
 }

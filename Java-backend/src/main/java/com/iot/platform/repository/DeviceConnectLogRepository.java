@@ -24,7 +24,11 @@ public interface DeviceConnectLogRepository extends JpaRepository<DeviceConnectL
     @Query("SELECT d.eventType, COUNT(d) FROM DeviceConnectLog d WHERE d.eventTime BETWEEN :start AND :end GROUP BY d.eventType")
     List<Object[]> countByEventTypeBetween(LocalDateTime start, LocalDateTime end);
 
-    /** 按日期统计上下线次数（用于趋势图） */
-    @Query(value = "SELECT DATE(event_time) as date, event_type, COUNT(*) FROM device_connect_log WHERE event_time >= :start GROUP BY DATE(event_time), event_type ORDER BY date", nativeQuery = true)
-    List<Object[]> countByDateGroupBy(LocalDateTime start);
+    /** 按天统计上下线次数（近7天趋势图） */
+    @Query(value = "SELECT DATE(event_time) as date, event_type, COUNT(*) as cnt " +
+            "FROM device_connect_log " +
+            "WHERE event_time >= :start " +
+            "GROUP BY DATE(event_time), event_type " +
+            "ORDER BY date", nativeQuery = true)
+    List<Object[]> countDailyByEventType(@org.springframework.data.repository.query.Param("start") LocalDateTime start);
 }

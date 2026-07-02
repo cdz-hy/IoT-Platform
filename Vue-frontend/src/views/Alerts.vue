@@ -24,7 +24,7 @@
                 <el-icon :size="16"><Warning /></el-icon>
               </div>
               <div class="rule-content">
-                <div class="rule-name">{{ rule.propertyName }} {{ rule.conditionExpr }}</div>
+                <div class="rule-name">{{ rule.propertyIdentifier }} {{ rule.operator }} {{ rule.threshold }}</div>
                 <div class="rule-desc">{{ rule.alertContent }}</div>
               </div>
               <div class="rule-status" :class="{ enabled: rule.enabled }">
@@ -90,13 +90,24 @@
             <el-option v-for="p in products" :key="p.id" :label="p.name" :value="p.id"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="属性名称">
-          <input v-model="ruleForm.propertyName" placeholder="如 temperature" class="fd-input" />
+        <el-form-item label="属性标识符">
+          <input v-model="ruleForm.propertyIdentifier" placeholder="如 temperature" class="fd-input" />
         </el-form-item>
-        <el-form-item label="条件表达式">
-          <input v-model="ruleForm.conditionExpr" placeholder="如 > 35, < 10" class="fd-input" />
-          <div class="fd-form-tip">支持运算符: >, <, >=, <=, ==</div>
-        </el-form-item>
+        <div class="form-row" style="display:flex;gap:12px;">
+          <el-form-item label="运算符" style="flex:1;">
+            <el-select v-model="ruleForm.operator" style="width:100%">
+              <el-option value=">" label="> 大于" />
+              <el-option value=">=" label=">= 大于等于" />
+              <el-option value="<" label="< 小于" />
+              <el-option value="<=" label="<= 小于等于" />
+              <el-option value="==" label="== 等于" />
+              <el-option value="!=" label="!= 不等于" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="阈值" style="flex:1;">
+            <input v-model="ruleForm.threshold" placeholder="如 35" class="fd-input" />
+          </el-form-item>
+        </div>
         <el-form-item label="告警内容">
           <textarea v-model="ruleForm.alertContent" placeholder="告警提示信息" class="fd-input" rows="3" style="resize: vertical;"></textarea>
         </el-form-item>
@@ -123,15 +134,16 @@ const ruleDialogVisible = ref(false)
 
 const ruleForm = reactive({
   productId: '',
-  propertyName: '',
-  conditionExpr: '',
+  propertyIdentifier: '',
+  operator: '>',
+  threshold: '',
   alertContent: ''
 })
 
 const loadRules = async () => {
   try {
     const res = await getAlertRules()
-    rules.value = res.data
+    rules.value = res.data || res || []
   } catch (error) {
     console.error('加载规则失败', error)
   }
@@ -140,7 +152,7 @@ const loadRules = async () => {
 const loadRecords = async () => {
   try {
     const res = await getAlertRecords()
-    records.value = res.data
+    records.value = res.data || res || []
   } catch (error) {
     console.error('加载记录失败', error)
   }
@@ -149,7 +161,7 @@ const loadRecords = async () => {
 const loadProducts = async () => {
   try {
     const res = await getProducts()
-    products.value = res.data
+    products.value = res.data || res || []
   } catch (error) {
     console.error('加载产品失败', error)
   }
@@ -157,8 +169,9 @@ const loadProducts = async () => {
 
 const showRuleDialog = () => {
   ruleForm.productId = ''
-  ruleForm.propertyName = ''
-  ruleForm.conditionExpr = ''
+  ruleForm.propertyIdentifier = ''
+  ruleForm.operator = '>'
+  ruleForm.threshold = ''
   ruleForm.alertContent = ''
   ruleDialogVisible.value = true
 }

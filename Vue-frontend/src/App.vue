@@ -85,7 +85,7 @@
 
             <!-- 通知按钮 -->
             <button class="header-action notification-btn" @click="showNotifications = !showNotifications">
-              <el-badge :value="notificationCount" :max="99" :hidden="notificationCount === 0">
+              <el-badge :value="notificationStore.unreadCount" :max="99" :hidden="notificationStore.unreadCount === 0">
                 <el-icon :size="16"><Bell /></el-icon>
               </el-badge>
             </button>
@@ -130,18 +130,46 @@
       <div v-if="showNotifications" class="notification-panel">
         <div class="notification-header">
           <h3>通知中心</h3>
-          <button @click="showNotifications = false" class="close-btn">
-            <el-icon><Close /></el-icon>
-          </button>
+          <div class="notification-actions">
+            <button
+              class="action-btn"
+              :class="{ active: showAllNotifications }"
+              @click="showAllNotifications = !showAllNotifications"
+            >
+              {{ showAllNotifications ? '仅未读' : '全部' }}
+            </button>
+            <button v-if="notificationStore.unreadCount > 0" @click="notificationStore.markAllAsRead" class="action-btn">
+              全部已读
+            </button>
+            <button @click="showNotifications = false" class="close-btn">
+              <el-icon><Close /></el-icon>
+            </button>
+          </div>
         </div>
         <div class="notification-list">
-          <div v-for="n in notifications" :key="n.id" class="notification-item" :class="n.type">
+          <div v-if="displayNotifications.length === 0" class="notification-empty">
+            <el-icon :size="48"><Bell /></el-icon>
+            <p>暂无通知</p>
+          </div>
+          <div
+            v-for="n in displayNotifications"
+            :key="n.id"
+            class="notification-item"
+            :class="[n.type, { unread: !n.read }]"
+            @click="notificationStore.markAsRead(n.id)"
+          >
             <div class="notification-dot"></div>
             <div class="notification-content">
               <p class="notification-text">{{ n.content }}</p>
               <span class="notification-time">{{ n.time }}</span>
             </div>
+            <button class="delete-btn" @click.stop="notificationStore.removeNotification(n.id)">
+              <el-icon :size="14"><Close /></el-icon>
+            </button>
           </div>
+        </div>
+        <div v-if="notificationStore.notifications.length > 0" class="notification-footer">
+          <button @click="notificationStore.clearAll" class="clear-btn">清空所有通知</button>
         </div>
       </div>
     </transition>
@@ -151,33 +179,41 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useRealtimeStore } from '@/stores/realtime.js'
+import { useNotificationStore } from '@/stores/notification.js'
 import IoTIcon from './components/IoTIcon.vue'
 
 const route = useRoute()
 const router = useRouter()
+const realtimeStore = useRealtimeStore()
+const notificationStore = useNotificationStore()
 
 const isCollapsed = ref(false)
 const isFullscreen = ref(false)
 const showNotifications = ref(false)
-const notificationCount = ref(3)
 const theme = ref('light')
+const showAllNotifications = ref(false)
 
-const notifications = ref([
-  { id: 1, content: '温度传感器TEMP_001温度过高: 38.5℃', type: 'warning', time: '2分钟前' },
-  { id: 2, content: '烟雾报警器SMOKE_002检测到烟雾', type: 'danger', time: '5分钟前' },
-  { id: 3, content: '设备DEV_003离线超过1小时', type: 'info', time: '10分钟前' }
-])
+// 显示的通知列表（未读或全部）
+const displayNotifications = computed(() => {
+  return showAllNotifications.value
+    ? notificationStore.notifications
+    : notificationStore.unreadNotifications
+})
 
 const menuItems = [
   { path: '/dashboard', label: '统计看板', icon: 'DataBoard' },
   { path: '/products', label: '产品管理', icon: 'Box' },
-  { path: '/devices', label: '设备管理', icon: 'Cpu', badge: 3 },
-  { path: '/alerts', label: '告警管理', icon: 'Bell', badge: 2 },
+  { path: '/devices', label: '设备管理', icon: 'Cpu' },
+  { path: '/data', label: '遥测数据', icon: 'TrendCharts' },
+  { path: '/commands', label: '命令管理', icon: 'Promotion' },
+  { path: '/alerts', label: '告警管理', icon: 'Bell' },
   { path: '/connect-logs', label: '上下线记录', icon: 'Connection' },
+  { path: '/mqtt-access', label: 'MQTT接入', icon: 'Link' },
   { path: '/simulator', label: '设备模拟器', icon: 'VideoCamera' }
 ]
 
-const isLoginPage = computed(() => route.path === '/login')
+const isLoginPage = computed(() => route.path === '/login' || route.path === '/register')
 const currentRoute = computed(() => route.path)
 
 const currentPageTitle = computed(() => {
@@ -206,7 +242,7 @@ const handleCommand = (command) => {
     localStorage.removeItem('token')
     router.push('/login')
   } else if (command === 'apiDocs') {
-    window.open('http://localhost:8080/api/swagger-ui.html', '_blank')
+    window.open('http://localhost:8080/api/swagger-ui/index.html', '_blank')
   }
 }
 
@@ -221,15 +257,18 @@ const toggleFullscreen = () => {
 }
 
 onMounted(() => {
-  // 从localStorage读取主题设置
   const savedTheme = localStorage.getItem('theme')
   if (savedTheme) {
     theme.value = savedTheme
   } else {
-    // 跟随系统主题
     theme.value = mediaQuery.matches ? 'dark' : 'light'
   }
   document.documentElement.setAttribute('data-theme', theme.value)
+
+  // 如果已登录，连接WebSocket
+  if (localStorage.getItem('token')) {
+    realtimeStore.connect()
+  }
 })
 </script>
 
@@ -508,6 +547,33 @@ onMounted(() => {
   color: var(--fd-text);
 }
 
+.notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.action-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--fd-primary);
+  background: var(--fd-primary-alpha);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.action-btn:hover {
+  background: var(--fd-primary);
+  color: white;
+}
+
+.action-btn.active {
+  background: var(--fd-primary);
+  color: white;
+}
+
 .close-btn {
   width: 28px;
   height: 28px;
@@ -541,10 +607,19 @@ onMounted(() => {
   margin-bottom: 4px;
   transition: all var(--transition-fast);
   cursor: pointer;
+  position: relative;
 }
 
 .notification-item:hover {
   background: var(--fd-bg-hover);
+}
+
+.notification-item.unread {
+  background: var(--fd-primary-alpha);
+}
+
+.notification-item.unread:hover {
+  background: var(--fd-primary-alpha-hover);
 }
 
 .notification-item.warning .notification-dot { background: var(--fd-warning); }
@@ -574,6 +649,71 @@ onMounted(() => {
   color: var(--fd-text-tertiary);
   margin-top: 4px;
   display: block;
+}
+
+.delete-btn {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--fd-text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+
+.notification-item:hover .delete-btn {
+  opacity: 1;
+}
+
+.delete-btn:hover {
+  background: var(--fd-error-alpha);
+  color: var(--fd-error);
+}
+
+.notification-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--fd-text-tertiary);
+}
+
+.notification-empty p {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.notification-footer {
+  padding: 12px;
+  border-top: var(--glass-border);
+  text-align: center;
+}
+
+.clear-btn {
+  width: 100%;
+  padding: 8px;
+  font-size: 13px;
+  color: var(--fd-text-secondary);
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.clear-btn:hover {
+  background: var(--fd-error-alpha);
+  color: var(--fd-error);
+  border-color: var(--fd-error);
 }
 
 /* ==================== 动画过渡 ==================== */

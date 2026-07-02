@@ -15,6 +15,6 @@ public interface ThingPropertyRepository extends JpaRepository<ThingProperty, St
     /** 根据产品ID查询所有属性 */
     List<ThingProperty> findByProductId(String productId);
 
-    /** 根据产品ID和属性名查询 */
-    ThingProperty findByProductIdAndPropertyName(String productId, String propertyName);
+    /** 根据产品ID和属性标识查询 */
+    ThingProperty findByProductIdAndIdentifier(String productId, String identifier);
 }

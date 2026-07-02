@@ -1,28 +1,21 @@
 package com.iot.platform.service.impl;
 
-import com.iot.platform.entity.AlertRule;
 import com.iot.platform.entity.AlertRecord;
-import com.iot.platform.repository.AlertRuleRepository;
+import com.iot.platform.entity.AlertRule;
 import com.iot.platform.repository.AlertRecordRepository;
+import com.iot.platform.repository.AlertRuleRepository;
 import com.iot.platform.service.AlertService;
 import com.iot.platform.websocket.WebSocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import org.kie.api.KieServices;
-import org.kie.api.builder.KieBuilder;
-import org.kie.api.builder.KieFileSystem;
-import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.KieSession;
-
-/**
- * 告警服务实现类
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -36,6 +29,8 @@ public class AlertServiceImpl implements AlertService {
     @Transactional
     public AlertRule createRule(AlertRule rule) {
         rule.setId(generateId("RULE"));
+        rule.setCreatedTime(LocalDateTime.now());
+        rule.setUpdatedTime(LocalDateTime.now());
         return ruleRepository.save(rule);
     }
 
@@ -44,10 +39,12 @@ public class AlertServiceImpl implements AlertService {
     public AlertRule updateRule(String ruleId, AlertRule rule) {
         AlertRule existing = ruleRepository.findById(ruleId)
                 .orElseThrow(() -> new RuntimeException("规则不存在: " + ruleId));
-        existing.setPropertyName(rule.getPropertyName());
-        existing.setConditionExpr(rule.getConditionExpr());
+        existing.setPropertyIdentifier(rule.getPropertyIdentifier());
+        existing.setOperator(rule.getOperator());
+        existing.setThreshold(rule.getThreshold());
         existing.setAlertContent(rule.getAlertContent());
         existing.setEnabled(rule.getEnabled());
+        existing.setUpdatedTime(LocalDateTime.now());
         return ruleRepository.save(existing);
     }
 
@@ -70,89 +67,66 @@ public class AlertServiceImpl implements AlertService {
     @Override
     @Transactional
     public void checkAlert(String deviceId, String productId, String propertyName, Object value) {
-        // 根据产品ID和属性名精确查询启用的告警规则
-        List<AlertRule> rules = ruleRepository.findByProductIdAndPropertyNameAndEnabled(productId, propertyName, true);
+        List<AlertRule> rules = ruleRepository.findByProductIdAndPropertyIdentifierAndEnabled(productId, propertyName, true);
         if (rules.isEmpty()) return;
 
-        double numValue;
-        try {
-            numValue = Double.parseDouble(value.toString());
-        } catch (NumberFormatException e) {
-            // 如果不是数值，进行简单的字符串比较（降级处理）
-            for (AlertRule rule : rules) {
-                if (rule.getConditionExpr().startsWith("==")) {
-                    String expected = rule.getConditionExpr().substring(2).trim();
-                    if (expected.equals(value.toString())) {
-                        triggerAlertRecord(deviceId, rule, value);
-                    }
+        for (AlertRule rule : rules) {
+            if (matches(rule.getOperator(), rule.getThreshold(), value)) {
+                AlertRecord record = new AlertRecord();
+                record.setDeviceId(deviceId);
+                record.setProductId(productId);
+                record.setRuleId(rule.getId());
+                record.setPropertyIdentifier(propertyName);
+                record.setActualValue(value.toString());
+                record.setAlertContent(rule.getAlertContent());
+                record.setStatus("pending");
+
+                AlertRecord saved = recordRepository.save(record);
+                log.warn("告警触发: deviceId={}, rule={}, value={}", deviceId, rule.getAlertContent(), value);
+
+                try {
+                    webSocketService.sendAlertNotification(saved);
+                } catch (Exception e) {
+                    log.warn("WebSocket推送告警失败: {}", e.getMessage());
                 }
             }
-            return;
-        }
-
-        // 使用 Drools 规则引擎动态编译并执行规则
-        StringBuilder drlBuilder = new StringBuilder();
-        drlBuilder.append("package com.iot.platform.rules;\n\n");
-        drlBuilder.append("import com.iot.platform.service.impl.AlertServiceImpl.AlertFact;\n\n");
-
-        for (AlertRule rule : rules) {
-            drlBuilder.append("rule \"Rule_").append(rule.getId()).append("\"\n");
-            drlBuilder.append("when\n");
-            // 例如 rule.getConditionExpr() 是 "> 35"
-            drlBuilder.append("    $fact: AlertFact(value ").append(rule.getConditionExpr()).append(")\n");
-            drlBuilder.append("then\n");
-            drlBuilder.append("    $fact.triggerRule(\"").append(rule.getId()).append("\");\n");
-            drlBuilder.append("end\n\n");
-        }
-
-        KieServices ks = KieServices.Factory.get();
-        KieFileSystem kfs = ks.newKieFileSystem();
-        kfs.write("src/main/resources/rules/dynamic_rules.drl", drlBuilder.toString());
-        
-        KieBuilder kb = ks.newKieBuilder(kfs);
-        kb.buildAll();
-        if (kb.getResults().hasMessages(org.kie.api.builder.Message.Level.ERROR)) {
-            log.error("Drools 规则编译失败: {}", kb.getResults().toString());
-            return;
-        }
-
-        KieContainer kContainer = ks.newKieContainer(ks.getRepository().getDefaultReleaseId());
-        KieSession kSession = kContainer.newKieSession();
-
-        AlertFact fact = new AlertFact(numValue);
-        kSession.insert(fact);
-        kSession.fireAllRules();
-        kSession.dispose();
-
-        // 遍历所有被 Drools 触发的规则ID
-        for (String triggeredRuleId : fact.getTriggeredRuleIds()) {
-            rules.stream().filter(r -> r.getId().equals(triggeredRuleId)).findFirst()
-                 .ifPresent(rule -> triggerAlertRecord(deviceId, rule, numValue));
         }
     }
 
-    private void triggerAlertRecord(String deviceId, AlertRule rule, Object value) {
-        AlertRecord record = new AlertRecord();
-        record.setDeviceId(deviceId);
-        record.setRuleId(rule.getId());
-        record.setAlertContent(rule.getAlertContent());
-        record.setStatus("pending");
-
-        AlertRecord saved = recordRepository.save(record);
-        log.warn("告警触发: deviceId={}, rule={}, value={}", deviceId, rule.getConditionExpr(), value);
-
-        // 通过WebSocket推送告警
-        webSocketService.sendAlertNotification(saved);
+    private boolean matches(String operator, String threshold, Object value) {
+        try {
+            BigDecimal numValue = new BigDecimal(value.toString());
+            BigDecimal numThreshold = new BigDecimal(threshold);
+            int cmp = numValue.compareTo(numThreshold);
+            switch (operator) {
+                case ">": return cmp > 0;
+                case ">=": return cmp >= 0;
+                case "<": return cmp < 0;
+                case "<=": return cmp <= 0;
+                case "==": return cmp == 0;
+                case "!=": return cmp != 0;
+                default: return false;
+            }
+        } catch (NumberFormatException e) {
+            if ("==".equals(operator)) return threshold.equals(value.toString());
+            if ("!=".equals(operator)) return !threshold.equals(value.toString());
+            return false;
+        }
     }
 
     @Override
     public List<AlertRecord> getAlertRecords() {
-        return recordRepository.findTop20ByOrderByAlertTimeDesc();
+        return recordRepository.findRecentAlerts(PageRequest.of(0, 50));
     }
 
     @Override
     public List<AlertRecord> getAlertRecordsByDeviceId(String deviceId) {
         return recordRepository.findByDeviceIdOrderByAlertTimeDesc(deviceId);
+    }
+
+    @Override
+    public List<AlertRecord> getRecentAlerts(int limit) {
+        return recordRepository.findRecentAlerts(PageRequest.of(0, limit));
     }
 
     @Override
@@ -170,30 +144,6 @@ public class AlertServiceImpl implements AlertService {
     public long countTodayAlerts() {
         LocalDateTime todayStart = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
         return recordRepository.countTodayAlerts(todayStart);
-    }
-
-    /**
-     * Drools 需要的 Fact 对象
-     */
-    public static class AlertFact {
-        private double value;
-        private List<String> triggeredRuleIds = new ArrayList<>();
-
-        public AlertFact(double value) {
-            this.value = value;
-        }
-
-        public double getValue() {
-            return value;
-        }
-
-        public void triggerRule(String ruleId) {
-            triggeredRuleIds.add(ruleId);
-        }
-
-        public List<String> getTriggeredRuleIds() {
-            return triggeredRuleIds;
-        }
     }
 
     private String generateId(String prefix) {

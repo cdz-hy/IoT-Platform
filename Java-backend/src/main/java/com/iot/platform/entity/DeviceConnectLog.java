@@ -8,9 +8,6 @@ import lombok.AllArgsConstructor;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-/**
- * 设备上下线记录 - 记录每次设备连接和断开的时间
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,25 +15,25 @@ import java.time.LocalDateTime;
 @Table(name = "device_connect_log")
 public class DeviceConnectLog {
 
-    /** 记录ID */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Long id;
 
-    /** 设备ID */
-    @Column(name = "device_id", length = 64)
+    @Column(name = "device_id", length = 64, nullable = false)
     private String deviceId;
 
-    /** 事件类型：online / offline */
-    @Column(name = "event_type", length = 10)
+    @Column(name = "event_type", length = 20, nullable = false)
     private String eventType;
 
-    /** 事件时间 */
-    @Column(name = "event_time")
+    @Column(name = "event_time", nullable = false)
     private LocalDateTime eventTime;
 
-    /** 关联设备 */
+    @Column(name = "client_id", length = 128)
+    private String clientId;
+
+    @Column(name = "reason", length = 255)
+    private String reason;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id", insertable = false, updatable = false)
     @JsonIgnore

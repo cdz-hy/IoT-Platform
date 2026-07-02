@@ -7,16 +7,16 @@ spring:
   application:
     name: iot-platform
 
-  # 数据源配置 - 默认使用H2内存数据库（开发测试用）
+  # MySQL数据源配置
   datasource:
-    url: jdbc:h2:mem:iotdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://localhost:3306/iot_platform?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 12344321
 
   # JPA配置
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
     show-sql: false
@@ -24,20 +24,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        use_sql_comments: false
 
   # 数据初始化（首次启动时执行）
   sql:
     init:
-      mode: embedded
-      schema-locations: classpath:schema-h2.sql
-      data-locations: classpath:data-h2.sql
-
-  # H2控制台（开发用）
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: true
 
   # Jackson配置
   jackson:
@@ -49,7 +43,7 @@ spring:
 # JWT配置
 jwt:
   secret: IoTPlatformSecretKey2024VeryLongSecretKeyForHS256Algorithm
-  expiration: 86400000  # 24小时
+  expiration: 86400000
 
 # MQTT Broker配置
 mqtt:
@@ -62,5 +56,5 @@ mqtt:
 # 日志配置
 logging:
   level:
-    com.iot.platform: DEBUG
+    com.iot.platform: INFO
     io.moquette: INFO

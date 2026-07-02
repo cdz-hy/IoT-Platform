@@ -3,6 +3,7 @@ package com.iot.platform.controller;
 import com.iot.platform.annotation.OperationLog;
 import com.iot.platform.dto.ApiResponse;
 import com.iot.platform.dto.LoginRequest;
+import com.iot.platform.dto.RegisterRequest;
 import com.iot.platform.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,6 +23,20 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+
+    /**
+     * 用户注册
+     */
+    @Operation(summary = "用户注册")
+    @PostMapping("/register")
+    public ApiResponse<Void> register(@Valid @RequestBody RegisterRequest request) {
+        try {
+            authService.register(request.getUsername(), request.getPassword(), request.getNickname());
+            return ApiResponse.success("注册成功", null);
+        } catch (RuntimeException e) {
+            return ApiResponse.error(400, e.getMessage());
+        }
+    }
 
     /**
      * 管理员登录

@@ -25,10 +25,6 @@
           <span class="stat-value">{{ statistics.totalProducts }}</span>
           <span class="stat-label">产品总数</span>
         </div>
-        <div class="stat-trend up">
-          <el-icon><Top /></el-icon>
-          <span>+2</span>
-        </div>
       </div>
 
       <!-- 设备总数 -->
@@ -39,10 +35,6 @@
         <div class="stat-content">
           <span class="stat-value">{{ statistics.totalDevices }}</span>
           <span class="stat-label">设备总数</span>
-        </div>
-        <div class="stat-trend up">
-          <el-icon><Top /></el-icon>
-          <span>+5</span>
         </div>
       </div>
 
@@ -69,10 +61,6 @@
         <div class="stat-content">
           <span class="stat-value">{{ statistics.todayAlerts }}</span>
           <span class="stat-label">今日告警</span>
-        </div>
-        <div class="stat-trend down">
-          <el-icon><Bottom /></el-icon>
-          <span>-3</span>
         </div>
       </div>
 
@@ -144,9 +132,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 import * as echarts from 'echarts'
-import { getDashboardStatistics, getRecentConnectLogs, getProductDistribution } from '../api'
+import { getDashboardSummary, getRecentConnectLogs, getProductDistribution } from '../api'
+import { useRealtimeStore } from '@/stores/realtime.js'
+import { storeToRefs } from 'pinia'
+
+const realtimeStore = useRealtimeStore()
+const { lastTelemetry, lastAlert, lastDevice } = storeToRefs(realtimeStore)
 
 const currentDate = computed(() => {
   const now = new Date()
@@ -166,11 +159,7 @@ const onlineRate = computed(() => {
 })
 
 const connectLogs = ref([])
-const alerts = ref([
-  { id: 1, content: '温度传感器TEMP_001温度过高: 38.5℃', level: 'high', time: '2分钟前' },
-  { id: 2, content: '烟雾报警器SMOKE_002检测到烟雾', level: 'critical', time: '5分钟前' },
-  { id: 3, content: '设备DEV_003离线超过1小时', level: 'medium', time: '10分钟前' }
-])
+const alerts = ref([])
 
 const pieChartRef = ref(null)
 const lineChartRef = ref(null)
@@ -188,12 +177,36 @@ const formatTime = (time) => {
   return date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 }
 
+const connectTrends = ref(null)
+
 const loadStatistics = async () => {
   try {
-    const res = await getDashboardStatistics()
-    Object.assign(statistics, res.data)
+    const res = await getDashboardSummary()
+    const data = res.data || res
+    statistics.totalProducts = data.totalProducts || 0
+    statistics.totalDevices = data.totalDevices || 0
+    statistics.onlineDevices = data.onlineDevices || 0
+    statistics.todayAlerts = data.todayAlerts || 0
+    if (data.latestAlerts) {
+      alerts.value = data.latestAlerts.map(a => ({
+        id: a.id,
+        content: a.alertContent,
+        level: a.status === 'pending' ? 'high' : 'medium',
+        time: formatTime(a.alertTime)
+      }))
+    }
+    // 更新趋势图数据
+    if (data.connectTrends) {
+      connectTrends.value = data.connectTrends
+      trendData = data.connectTrends
+      renderLineChart()
+    }
   } catch (error) {
-    console.error('加载统计数据失败', error)
+    // 降级到基础统计
+    try {
+      const res = await getDashboardStatistics()
+      Object.assign(statistics, res.data || res)
+    } catch (e) { /* ignore */ }
   }
 }
 
@@ -251,73 +264,101 @@ const initPieChart = async () => {
   }
 }
 
-const initLineChart = () => {
-  if (lineChartRef.value) {
-    lineChart = echarts.init(lineChartRef.value)
-    lineChart.setOption({
-      tooltip: {
-        trigger: 'axis',
-        backgroundColor: 'var(--fd-bg-card)',
-        borderColor: 'var(--fd-border)',
-        textStyle: { color: 'var(--fd-text)' }
-      },
-      legend: {
-        data: ['上线', '下线'],
-        textStyle: { color: 'var(--fd-text-secondary)', fontSize: 12 }
-      },
-      grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-      xAxis: {
-        type: 'category',
-        boundaryGap: false,
-        data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-        axisLine: { lineStyle: { color: 'var(--fd-border)' } },
-        axisLabel: { color: 'var(--fd-text-secondary)' }
-      },
-      yAxis: {
-        type: 'value',
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: 'var(--fd-border)' } },
-        axisLabel: { color: 'var(--fd-text-secondary)' }
-      },
-      series: [
-        {
-          name: '上线',
-          type: 'line',
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          lineStyle: { width: 2.5, color: '#107c10' },
-          itemStyle: { color: '#107c10' },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(16, 124, 16, 0.2)' },
-              { offset: 1, color: 'rgba(16, 124, 16, 0.02)' }
-            ])
-          },
-          data: [12, 15, 18, 14, 20, 16, 22]
-        },
-        {
-          name: '下线',
-          type: 'line',
-          smooth: true,
-          symbol: 'circle',
-          symbolSize: 6,
-          lineStyle: { width: 2.5, color: '#a4262c' },
-          itemStyle: { color: '#a4262c' },
-          areaStyle: {
-            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-              { offset: 0, color: 'rgba(164, 38, 44, 0.2)' },
-              { offset: 1, color: 'rgba(164, 38, 44, 0.02)' }
-            ])
-          },
-          data: [3, 5, 2, 4, 3, 6, 2]
-        }
-      ]
-    })
+let trendData = { dates: [], online: [], offline: [] }
+
+const initLineChart = async () => {
+  if (!lineChartRef.value) return
+  lineChart = echarts.init(lineChartRef.value)
+
+  // 从已加载的统计数据中获取趋势数据
+  if (connectTrends.value) {
+    trendData = connectTrends.value
   }
+
+  renderLineChart()
+}
+
+const renderLineChart = () => {
+  if (!lineChart) return
+  lineChart.setOption({
+    tooltip: {
+      trigger: 'axis',
+      backgroundColor: 'var(--fd-bg-card)',
+      borderColor: 'var(--fd-border)',
+      textStyle: { color: 'var(--fd-text)' }
+    },
+    legend: {
+      data: ['上线', '下线'],
+      textStyle: { color: 'var(--fd-text-secondary)', fontSize: 12 }
+    },
+    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: trendData.dates || [],
+      axisLine: { lineStyle: { color: 'var(--fd-border)' } },
+      axisLabel: { color: 'var(--fd-text-secondary)' }
+    },
+    yAxis: {
+      type: 'value',
+      axisLine: { show: false },
+      splitLine: { lineStyle: { color: 'var(--fd-border)' } },
+      axisLabel: { color: 'var(--fd-text-secondary)' }
+    },
+    series: [
+      {
+        name: '上线',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        lineStyle: { width: 2.5, color: '#107c10' },
+        itemStyle: { color: '#107c10' },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(16, 124, 16, 0.2)' },
+            { offset: 1, color: 'rgba(16, 124, 16, 0.02)' }
+          ])
+        },
+        data: trendData.online || [0, 0, 0, 0, 0, 0, 0]
+      },
+      {
+        name: '下线',
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        lineStyle: { width: 2.5, color: '#a4262c' },
+        itemStyle: { color: '#a4262c' },
+        areaStyle: {
+          color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+            { offset: 0, color: 'rgba(164, 38, 44, 0.2)' },
+            { offset: 1, color: 'rgba(164, 38, 44, 0.02)' }
+          ])
+        },
+        data: trendData.offline || [0, 0, 0, 0, 0, 0, 0]
+      }
+    ]
+  })
 }
 
 let refreshTimer = null
+
+// WebSocket实时更新
+watch(lastAlert, (newAlert) => {
+  if (newAlert) {
+    alerts.value.unshift({
+      id: newAlert.alertId,
+      content: newAlert.content,
+      level: 'high',
+      time: '刚刚'
+    })
+    statistics.todayAlerts++
+  }
+})
+
+watch(lastDevice, () => { loadStatistics() })
+watch(lastTelemetry, () => { loadStatistics() })
 
 onMounted(() => {
   loadStatistics()

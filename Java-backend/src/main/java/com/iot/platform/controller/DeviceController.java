@@ -4,21 +4,18 @@ import com.iot.platform.annotation.OperationLog;
 import com.iot.platform.dto.ApiResponse;
 import com.iot.platform.dto.CommandRequest;
 import com.iot.platform.dto.DeviceRegisterRequest;
-import com.iot.platform.entity.Device;
-import com.iot.platform.entity.DeviceConnectLog;
-import com.iot.platform.entity.CommandLog;
+import com.iot.platform.entity.*;
 import com.iot.platform.service.DeviceService;
+import com.iot.platform.service.DeviceShadowService;
+import com.iot.platform.service.TelemetryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+import java.util.*;
 
-/**
- * 设备管理控制器
- */
 @Tag(name = "设备管理", description = "设备注册、查询、命令下发")
 @RestController
 @RequestMapping("/devices")
@@ -26,6 +23,8 @@ import java.util.List;
 public class DeviceController {
 
     private final DeviceService deviceService;
+    private final DeviceShadowService shadowService;
+    private final TelemetryService telemetryService;
 
     /**
      * 注册设备
@@ -69,6 +68,19 @@ public class DeviceController {
     @GetMapping("/{deviceId}")
     public ApiResponse<Device> getDevice(@PathVariable String deviceId) {
         return ApiResponse.success(deviceService.getDeviceById(deviceId));
+    }
+
+    @Operation(summary = "查询设备完整详情（含影子/遥测/日志）")
+    @GetMapping("/{deviceId}/detail")
+    public ApiResponse<Map<String, Object>> getDeviceDetail(@PathVariable String deviceId) {
+        Device device = deviceService.getDeviceById(deviceId);
+        Map<String, Object> detail = new LinkedHashMap<>();
+        detail.put("device", device);
+        detail.put("shadow", shadowService.getShadow(deviceId));
+        detail.put("latestTelemetry", telemetryService.getLatest(deviceId));
+        detail.put("connectLogs", deviceService.getConnectLogs(deviceId));
+        detail.put("commandLogs", deviceService.getCommandLogs(deviceId));
+        return ApiResponse.success(detail);
     }
 
     /**

@@ -12,6 +12,8 @@
   --fd-primary-pressed: #115e59; /* Teal 700 */
   --fd-primary-light: #ccfbf1; /* Teal 50 */
   --fd-primary-alpha: rgba(15, 118, 110, 0.15);
+  --fd-primary-alpha-hover: rgba(15, 118, 110, 0.25);
+  --fd-error-alpha: rgba(225, 29, 72, 0.1);
 
   /* 状态色 */
   --fd-success: #059669; /* Emerald 600 */
@@ -111,6 +113,8 @@
 
   --fd-primary-light: #115e59;
   --fd-primary-alpha: rgba(20, 184, 166, 0.15); /* Teal 500 alpha */
+  --fd-primary-alpha-hover: rgba(20, 184, 166, 0.25);
+  --fd-error-alpha: rgba(225, 29, 72, 0.15);
 
   --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
   --shadow-4: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.2);

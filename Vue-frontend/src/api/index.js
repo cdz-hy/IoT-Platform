@@ -6,6 +6,10 @@ export function login(username, password) {
   return request.post('/auth/login', { username, password })
 }
 
+export function register(username, password, nickname) {
+  return request.post('/auth/register', { username, password, nickname })
+}
+
 // ==================== 产品接口 ====================
 
 export function getProducts() {
@@ -183,6 +187,54 @@ export function getDashboardStatistics() {
   return request.get('/dashboard/statistics')
 }
 
+export function getDashboardSummary() {
+  return request.get('/dashboard/summary')
+}
+
 export function getProductDistribution() {
   return request.get('/dashboard/products/distribution')
+}
+
+// ==================== 遥测接口 ====================
+
+export function getLatestTelemetry(deviceId) {
+  return request.get(`/telemetry/latest/${deviceId}`)
+}
+
+export function getTelemetryHistory(deviceId, limit = 100) {
+  return request.get(`/telemetry/history/${deviceId}`, { params: { limit } })
+}
+
+// ==================== MQTT接入接口 ====================
+
+export function getMqttAccessInfo(deviceId) {
+  return request.get(`/mqtt/access/${deviceId}`)
+}
+
+export function simulateOnline(deviceId) {
+  return request.post(`/mqtt/simulate/${deviceId}/online`)
+}
+
+export function simulateOffline(deviceId) {
+  return request.post(`/mqtt/simulate/${deviceId}/offline`)
+}
+
+export function simulateTelemetry(deviceId, payload) {
+  return request.post(`/mqtt/simulate/${deviceId}/telemetry`, payload)
+}
+
+export function simulateEvent(deviceId, payload) {
+  return request.post(`/mqtt/simulate/${deviceId}/event`, payload)
+}
+
+// ==================== 设备详情聚合 ====================
+
+export function getDeviceDetail(deviceId) {
+  return request.get(`/devices/${deviceId}/detail`)
+}
+
+// ==================== 设备事件 ====================
+
+export function getDeviceEvents(deviceId, limit = 50) {
+  return request.get(`/devices/${deviceId}/events`, { params: { limit } })
 }

@@ -1,0 +1,3898 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "IoT Platform API",
+        "description": "物联网平台接口文档 - 基于Spring Boot + MQTT",
+        "contact": {
+            "name": "IoT Platform",
+            "url": "http://localhost:8080/api"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080/api",
+            "description": "Generated server url"
+        }
+    ],
+    "tags": [
+        {
+            "name": "认证管理",
+            "description": "用户登录认证"
+        },
+        {
+            "name": "设备管理",
+            "description": "设备注册、查询、命令下发"
+        },
+        {
+            "name": "统计看板",
+            "description": "数据统计和可视化"
+        },
+        {
+            "name": "告警管理",
+            "description": "告警规则和告警记录"
+        },
+        {
+            "name": "产品管理",
+            "description": "产品CRUD和物模型管理"
+        },
+        {
+            "name": "设备影子",
+            "description": "设备影子管理"
+        },
+        {
+            "name": "MQTT接入",
+            "description": "MQTT连接信息和模拟API"
+        },
+        {
+            "name": "遥测数据",
+            "description": "设备遥测数据查询"
+        }
+    ],
+    "paths": {
+        "/shadows/desired": {
+            "put": {
+                "tags": [
+                    "设备影子"
+                ],
+                "summary": "更新设备desired区",
+                "operationId": "updateDesired",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShadowUpdateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}": {
+            "get": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "查询产品详情",
+                "operationId": "getProduct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseProduct"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "更新产品",
+                "operationId": "updateProduct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseProduct"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "删除产品",
+                "operationId": "deleteProduct",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/services/{serviceId}": {
+            "put": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "更新产品服务",
+                "operationId": "updateService",
+                "parameters": [
+                    {
+                        "name": "serviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ThingService"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseThingService"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "删除产品服务",
+                "operationId": "deleteService",
+                "parameters": [
+                    {
+                        "name": "serviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/properties/{propertyId}": {
+            "put": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "更新产品属性",
+                "operationId": "updateProperty",
+                "parameters": [
+                    {
+                        "name": "propertyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ThingProperty"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseThingProperty"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "删除产品属性",
+                "operationId": "deleteProperty",
+                "parameters": [
+                    {
+                        "name": "propertyId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/events/{eventId}": {
+            "put": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "更新产品事件",
+                "operationId": "updateEvent",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ThingEvent"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseThingEvent"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "删除产品事件",
+                "operationId": "deleteEvent",
+                "parameters": [
+                    {
+                        "name": "eventId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{deviceId}": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "查询设备详情",
+                "operationId": "getDevice",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseDevice"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "更新设备",
+                "operationId": "updateDevice",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Device"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseDevice"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "删除设备",
+                "operationId": "deleteDevice",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/rules/{ruleId}": {
+            "put": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "更新告警规则",
+                "operationId": "updateRule",
+                "parameters": [
+                    {
+                        "name": "ruleId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AlertRule"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseAlertRule"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "删除告警规则",
+                "operationId": "deleteRule",
+                "parameters": [
+                    {
+                        "name": "ruleId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/records/{alertId}/confirm": {
+            "put": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "确认告警",
+                "operationId": "confirmAlert",
+                "parameters": [
+                    {
+                        "name": "alertId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "查询所有产品",
+                "operationId": "getAllProducts",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListProduct"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "创建产品",
+                "operationId": "createProduct",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseProduct"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{productId}/services": {
+            "get": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "查询产品所有服务",
+                "operationId": "getServices",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListThingService"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "添加产品服务",
+                "operationId": "addService",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ThingService"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseThingService"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{productId}/properties": {
+            "get": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "查询产品所有属性",
+                "operationId": "getProperties",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListThingProperty"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "添加产品属性",
+                "operationId": "addProperty",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ThingProperty"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseThingProperty"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{productId}/events": {
+            "get": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "查询产品所有事件",
+                "operationId": "getEvents",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListThingEvent"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "添加产品事件",
+                "operationId": "addEvent",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ThingEvent"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseThingEvent"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mqtt/simulate/{deviceId}/telemetry": {
+            "post": {
+                "tags": [
+                    "MQTT接入"
+                ],
+                "summary": "模拟遥测数据上报",
+                "operationId": "simulateTelemetry",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mqtt/simulate/{deviceId}/online": {
+            "post": {
+                "tags": [
+                    "MQTT接入"
+                ],
+                "summary": "模拟设备上线",
+                "operationId": "simulateOnline",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mqtt/simulate/{deviceId}/offline": {
+            "post": {
+                "tags": [
+                    "MQTT接入"
+                ],
+                "summary": "模拟设备离线",
+                "operationId": "simulateOffline",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mqtt/simulate/{deviceId}/event": {
+            "post": {
+                "tags": [
+                    "MQTT接入"
+                ],
+                "summary": "模拟设备事件",
+                "operationId": "simulateEvent",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/register": {
+            "post": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "注册设备",
+                "operationId": "registerDevice",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeviceRegisterRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseDevice"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/command": {
+            "post": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "下发命令",
+                "operationId": "sendCommand",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CommandRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseCommandLog"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "认证管理"
+                ],
+                "summary": "用户注册",
+                "operationId": "register",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "认证管理"
+                ],
+                "summary": "管理员登录",
+                "operationId": "login",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringString"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/rules": {
+            "get": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "查询所有告警规则",
+                "operationId": "getAllRules",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListAlertRule"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "创建告警规则",
+                "operationId": "createRule",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AlertRule"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseAlertRule"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/telemetry/latest/{deviceId}": {
+            "get": {
+                "tags": [
+                    "遥测数据"
+                ],
+                "summary": "获取设备最新遥测数据",
+                "operationId": "getLatest",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseTelemetryLatest"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/telemetry/history/{deviceId}": {
+            "get": {
+                "tags": [
+                    "遥测数据"
+                ],
+                "summary": "获取设备遥测历史",
+                "operationId": "getHistory",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListTelemetryRecord"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/shadows/{deviceId}": {
+            "get": {
+                "tags": [
+                    "设备影子"
+                ],
+                "summary": "获取设备影子",
+                "operationId": "getShadow",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseDeviceShadow"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/shadows/{deviceId}/delta": {
+            "get": {
+                "tags": [
+                    "设备影子"
+                ],
+                "summary": "计算设备delta",
+                "operationId": "calculateDelta",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/statistics/type": {
+            "get": {
+                "tags": [
+                    "产品管理"
+                ],
+                "summary": "统计各类型产品数量",
+                "operationId": "getProductCountByType",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringLong"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/mqtt/access/{deviceId}": {
+            "get": {
+                "tags": [
+                    "MQTT接入"
+                ],
+                "summary": "获取设备MQTT连接信息",
+                "operationId": "getMqttAccessInfo",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "查询所有设备",
+                "operationId": "getAllDevices",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListDevice"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{deviceId}/detail": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "查询设备完整详情（含影子/遥测/日志）",
+                "operationId": "getDeviceDetail",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{deviceId}/connect-logs": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "查询设备上下线记录",
+                "operationId": "getConnectLogs",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListDeviceConnectLog"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/{deviceId}/commands": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "查询设备命令记录",
+                "operationId": "getCommandLogs",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListCommandLog"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/statistics/total": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "统计总设备数量",
+                "operationId": "countTotalDevices",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseLong"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/statistics/online": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "统计在线设备数量",
+                "operationId": "countOnlineDevices",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseLong"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/product/{productId}": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "根据产品ID查询设备",
+                "operationId": "getDevicesByProduct",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListDevice"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/devices/connect-logs/recent": {
+            "get": {
+                "tags": [
+                    "设备管理"
+                ],
+                "summary": "查询最近上下线记录",
+                "operationId": "getRecentConnectLogs",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListDeviceConnectLog"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/summary": {
+            "get": {
+                "tags": [
+                    "统计看板"
+                ],
+                "summary": "获取完整仪表盘数据",
+                "operationId": "getSummary",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/statistics": {
+            "get": {
+                "tags": [
+                    "统计看板"
+                ],
+                "summary": "获取统计数据",
+                "operationId": "getStatistics",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard/products/distribution": {
+            "get": {
+                "tags": [
+                    "统计看板"
+                ],
+                "summary": "获取产品类型分布",
+                "operationId": "getProductDistribution",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringLong"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/validate": {
+            "get": {
+                "tags": [
+                    "认证管理"
+                ],
+                "summary": "验证token",
+                "operationId": "validateToken",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseBoolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/statistics/today": {
+            "get": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "统计今日告警数量",
+                "operationId": "countTodayAlerts",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseLong"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/rules/product/{productId}": {
+            "get": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "查询产品下的告警规则",
+                "operationId": "getRulesByProduct",
+                "parameters": [
+                    {
+                        "name": "productId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListAlertRule"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/records": {
+            "get": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "查询告警记录",
+                "operationId": "getAlertRecords",
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListAlertRecord"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/alerts/records/device/{deviceId}": {
+            "get": {
+                "tags": [
+                    "告警管理"
+                ],
+                "summary": "查询设备告警记录",
+                "operationId": "getAlertRecordsByDevice",
+                "parameters": [
+                    {
+                        "name": "deviceId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "500": {
+                        "description": "Internal Server Error",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseListAlertRecord"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ApiResponseVoid": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ShadowUpdateRequest": {
+                "required": [
+                    "deviceId"
+                ],
+                "type": "object",
+                "properties": {
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "desired": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "Device": {
+                "type": "object",
+                "properties": {
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "nodeId": {
+                        "type": "string"
+                    },
+                    "deviceName": {
+                        "type": "string"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "lastOnlineTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "activatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "productName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Product": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "properties": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ThingProperty"
+                        }
+                    },
+                    "services": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ThingService"
+                        }
+                    },
+                    "events": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ThingEvent"
+                        }
+                    },
+                    "devices": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Device"
+                        }
+                    }
+                }
+            },
+            "ThingEvent": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "identifier": {
+                        "type": "string"
+                    },
+                    "eventType": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ThingProperty": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "identifier": {
+                        "type": "string"
+                    },
+                    "dataType": {
+                        "type": "string"
+                    },
+                    "minValue": {
+                        "type": "string"
+                    },
+                    "maxValue": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "accessMode": {
+                        "type": "string"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ThingService": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "identifier": {
+                        "type": "string"
+                    },
+                    "inputParams": {
+                        "type": "string"
+                    },
+                    "outputParams": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponseProduct": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Product"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseThingService": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ThingService"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseThingProperty": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ThingProperty"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseThingEvent": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/ThingEvent"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseDevice": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/Device"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "AlertRule": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "productId": {
+                        "type": "string"
+                    },
+                    "propertyIdentifier": {
+                        "type": "string"
+                    },
+                    "operator": {
+                        "type": "string"
+                    },
+                    "threshold": {
+                        "type": "string"
+                    },
+                    "alertContent": {
+                        "type": "string"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "createdTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponseAlertRule": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/AlertRule"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "DeviceRegisterRequest": {
+                "required": [
+                    "nodeId",
+                    "productId"
+                ],
+                "type": "object",
+                "properties": {
+                    "productId": {
+                        "type": "string"
+                    },
+                    "nodeId": {
+                        "type": "string"
+                    },
+                    "deviceName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CommandRequest": {
+                "required": [
+                    "commandName",
+                    "deviceId"
+                ],
+                "type": "object",
+                "properties": {
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "commandName": {
+                        "type": "string"
+                    },
+                    "commandParams": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ApiResponseCommandLog": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/CommandLog"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "CommandLog": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "commandId": {
+                        "type": "string"
+                    },
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "serviceIdentifier": {
+                        "type": "string"
+                    },
+                    "commandName": {
+                        "type": "string"
+                    },
+                    "commandParams": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "result": {
+                        "type": "string"
+                    },
+                    "requestTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "responseTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "RegisterRequest": {
+                "required": [
+                    "password",
+                    "username"
+                ],
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "maxLength": 50,
+                        "minLength": 3,
+                        "type": "string"
+                    },
+                    "password": {
+                        "maxLength": 100,
+                        "minLength": 6,
+                        "type": "string"
+                    },
+                    "nickname": {
+                        "type": "string"
+                    }
+                }
+            },
+            "LoginRequest": {
+                "required": [
+                    "password",
+                    "username"
+                ],
+                "type": "object",
+                "properties": {
+                    "username": {
+                        "type": "string"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ApiResponseMapStringString": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseTelemetryLatest": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/TelemetryLatest"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "TelemetryLatest": {
+                "type": "object",
+                "properties": {
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "productId": {
+                        "type": "string"
+                    },
+                    "payload": {
+                        "type": "string"
+                    },
+                    "reportedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponseListTelemetryRecord": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TelemetryRecord"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "TelemetryRecord": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "productId": {
+                        "type": "string"
+                    },
+                    "payload": {
+                        "type": "string"
+                    },
+                    "reportedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponseDeviceShadow": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/DeviceShadow"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "DeviceShadow": {
+                "type": "object",
+                "properties": {
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "shadowData": {
+                        "type": "string"
+                    },
+                    "version": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "updatedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponseMapStringObject": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseListProduct": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Product"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseListThingService": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ThingService"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseListThingProperty": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ThingProperty"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseListThingEvent": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ThingEvent"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseMapStringLong": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseListDevice": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Device"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseListDeviceConnectLog": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DeviceConnectLog"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "DeviceConnectLog": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "eventType": {
+                        "type": "string"
+                    },
+                    "eventTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "clientId": {
+                        "type": "string"
+                    },
+                    "reason": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ApiResponseListCommandLog": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CommandLog"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseLong": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseBoolean": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "boolean"
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "ApiResponseListAlertRule": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AlertRule"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "AlertRecord": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "deviceId": {
+                        "type": "string"
+                    },
+                    "productId": {
+                        "type": "string"
+                    },
+                    "ruleId": {
+                        "type": "string"
+                    },
+                    "propertyIdentifier": {
+                        "type": "string"
+                    },
+                    "actualValue": {
+                        "type": "string"
+                    },
+                    "alertContent": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "alertTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "confirmedTime": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "remark": {
+                        "type": "string"
+                    },
+                    "deviceName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ApiResponseListAlertRecord": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AlertRecord"
+                        }
+                    },
+                    "timestamp": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            }
+        }
+    }
+}

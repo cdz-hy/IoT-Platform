@@ -53,7 +53,7 @@
 
         <el-table-column label="所属产品" width="140">
           <template #default="{ row }">
-            <span class="fd-tag">{{ row.product?.name || '-' }}</span>
+            <span class="fd-tag">{{ row.productName || row.belongProductId || '-' }}</span>
           </template>
         </el-table-column>
 
@@ -125,10 +125,15 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getDevices, registerDevice, deleteDevice, getProducts } from '../api'
+import { useRealtimeStore } from '@/stores/realtime.js'
+import { storeToRefs } from 'pinia'
+
+const realtimeStore = useRealtimeStore()
+const { lastDevice } = storeToRefs(realtimeStore)
 
 const router = useRouter()
 const devices = ref([])
@@ -232,6 +237,19 @@ const handleDelete = async (row) => {
 
 const viewDetail = (row) => router.push(`/devices/${row.deviceId}`)
 const viewShadow = (row) => router.push(`/devices/${row.deviceId}?tab=shadow`)
+
+// WebSocket实时更新设备状态
+watch(lastDevice, (update) => {
+  if (update && update.deviceId) {
+    const idx = devices.value.findIndex(d => d.deviceId === update.deviceId)
+    if (idx >= 0) {
+      devices.value[idx].status = update.status
+      if (update.status === 'online') {
+        devices.value[idx].lastOnlineTime = new Date().toISOString()
+      }
+    }
+  }
+})
 
 onMounted(() => {
   loadDevices()

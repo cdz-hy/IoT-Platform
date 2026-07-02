@@ -51,6 +51,10 @@ public class DeviceServiceImpl implements DeviceService {
 
         Device saved = deviceRepository.save(device);
 
+        // 手动填充瞬态字段（新实体@PostLoad可能未正确触发）
+        saved.setProductName(product.getName());
+        saved.setBelongProductId(product.getId());
+
         // 初始化设备影子
         shadowService.getShadow(saved.getDeviceId());
 
@@ -69,6 +73,10 @@ public class DeviceServiceImpl implements DeviceService {
         if (device.getNodeId() != null) {
             existing.setNodeId(device.getNodeId());
         }
+        if (device.getLocation() != null) {
+            existing.setLocation(device.getLocation());
+        }
+        existing.setUpdatedTime(LocalDateTime.now());
         return deviceRepository.save(existing);
     }
 

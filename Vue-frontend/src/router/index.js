@@ -7,6 +7,11 @@ const routes = [
     component: () => import('../views/Login.vue')
   },
   {
+    path: '/register',
+    name: 'Register',
+    component: () => import('../views/Register.vue')
+  },
+  {
     path: '/',
     redirect: '/dashboard'
   },
@@ -49,6 +54,21 @@ const routes = [
     path: '/simulator',
     name: 'Simulator',
     component: () => import('../views/Simulator.vue')
+  },
+  {
+    path: '/mqtt-access',
+    name: 'MqttAccess',
+    component: () => import('../views/MqttAccessView.vue')
+  },
+  {
+    path: '/data',
+    name: 'Data',
+    component: () => import('../views/DataView.vue')
+  },
+  {
+    path: '/commands',
+    name: 'Commands',
+    component: () => import('../views/CommandsView.vue')
   }
 ]
 
@@ -57,10 +77,9 @@ const router = createRouter({
   routes
 })
 
-// 路由守卫
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
-  if (to.path !== '/login' && !token) {
+  if (to.path !== '/login' && to.path !== '/register' && !token) {
     next('/login')
   } else {
     next()
